@@ -1,5 +1,7 @@
-package com.example.tasks.userservice.dto;
+package com.example.tasks.userservice.mapper;
 
+import com.example.tasks.userservice.dto.CardRequestDto;
+import com.example.tasks.userservice.dto.CardResponseDto;
 import com.example.tasks.userservice.model.Card;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

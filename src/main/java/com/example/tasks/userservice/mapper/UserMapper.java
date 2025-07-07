@@ -1,7 +1,13 @@
-package com.example.tasks.userservice.dto;
+package com.example.tasks.userservice.mapper;
 
+import com.example.tasks.userservice.dto.UserRequestDto;
+import com.example.tasks.userservice.dto.UserResponseDto;
 import com.example.tasks.userservice.model.User;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring",
 		uses = CardMapper.class,

@@ -1,6 +1,6 @@
 package com.example.tasks.userservice.service;
 
-import com.example.tasks.userservice.dto.UserMapper;
+import com.example.tasks.userservice.mapper.UserMapper;
 import com.example.tasks.userservice.dto.UserRequestDto;
 import com.example.tasks.userservice.dto.UserResponseDto;
 import com.example.tasks.userservice.exception.DuplicateEmailException;

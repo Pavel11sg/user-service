@@ -1,9 +1,12 @@
 package com.example.tasks.userservice.service;
 
-import com.example.tasks.userservice.dto.CardMapper;
+import com.example.tasks.userservice.mapper.CardMapper;
 import com.example.tasks.userservice.dto.CardRequestDto;
 import com.example.tasks.userservice.dto.CardResponseDto;
-import com.example.tasks.userservice.exception.*;
+import com.example.tasks.userservice.exception.CardNotFoundException;
+import com.example.tasks.userservice.exception.CardNotOwnedException;
+import com.example.tasks.userservice.exception.DuplicateCardException;
+import com.example.tasks.userservice.exception.UserNotFoundException;
 import com.example.tasks.userservice.model.Card;
 import com.example.tasks.userservice.model.User;
 import com.example.tasks.userservice.repository.CardRepository;
