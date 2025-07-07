@@ -9,6 +9,8 @@ import com.example.tasks.userservice.model.User;
 import com.example.tasks.userservice.repository.CardRepository;
 import com.example.tasks.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "users", key = "#p0")
 	public CardResponseDto createCard(Long userId, CardRequestDto cardRequestDto) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 		if (cardRepository.existsByUserAndNumber(user, cardRequestDto.getNumber())) {
@@ -36,6 +39,7 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "cards", key = "#p0 + '_' + #p1")
 	public CardResponseDto updateCard(Long userId, Long cardId, CardRequestDto cardRequestDto) {
 		Card card = cardRepository.findById(cardId).orElseThrow(() -> new CardNotFoundException("Card not found with cardId: " + cardId));
 		if (!card.getUser().getId().equals(userId)) {
@@ -48,6 +52,7 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "cards", key = "#p0 + '_' + #p1")
 	public CardResponseDto getCardByUserIdAndCardId(Long userId, Long cardId) {
 		Card card = cardRepository.findByUserIdAndId(userId, cardId)
 				.orElseThrow(() -> new CardNotFoundException("Card not found with id: " + cardId + " for user: " + userId));
@@ -65,6 +70,7 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "cards", key = "#p0 + '_' + #p1")
 	public void deleteCard(Long userId, Long cardId) {
 		if (!userRepository.existsById(userId)) {
 			throw new UserNotFoundException("User not found with id: " + userId);

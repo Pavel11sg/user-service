@@ -8,6 +8,8 @@ import com.example.tasks.userservice.exception.UserNotFoundException;
 import com.example.tasks.userservice.model.User;
 import com.example.tasks.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "users", key = "#p0")
 	public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
 		User existingUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 		if (!existingUser.getEmail().equals(userRequestDto.getEmail()) && userRepository.existsByEmail(userRequestDto.getEmail())) {
@@ -44,6 +47,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "users", key = "#p0")
 	public void deleteUser(Long id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(("User not found with id: " + id)));
 		userRepository.delete(user);
@@ -51,6 +55,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "users", key = "#p0")
 	public UserResponseDto getUserById(Long id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(("User not found with id: " + id)));
 		return userMapper.toResponseDto(user);
