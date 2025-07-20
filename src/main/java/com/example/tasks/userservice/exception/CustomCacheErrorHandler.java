@@ -20,7 +20,7 @@ public class CustomCacheErrorHandler implements CacheErrorHandler {
 
 	@Override
 	public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-		throw exception;
+		logger.info(()-> String.format("Error of cache evict while update in database! Key: %s, Error: %s", key, exception.getMessage()));
 	}
 
 	@Override

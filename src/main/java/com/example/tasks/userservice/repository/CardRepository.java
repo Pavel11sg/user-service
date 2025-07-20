@@ -28,7 +28,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 	@Query("select c from Card c where c.user.id = :userId and c.expirationDate > current_date")
 	List<Card> findValidCardsByUserId(@Param("userId") Long userId);
 
-	@Modifying
+	@Modifying(clearAutomatically = true)
 	@Query(value = "update card_info set holder = :holder where user_id = :userId", nativeQuery = true)
 	int updateCardHolderByUser(@Param("userId") Long userId, @Param("holder") String holder);
 }

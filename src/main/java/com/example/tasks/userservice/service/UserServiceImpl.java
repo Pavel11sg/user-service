@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 	public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
 		User existingUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 		if (!existingUser.getEmail().equals(userRequestDto.getEmail()) && userRepository.existsByEmail(userRequestDto.getEmail())) {
-			throw new DuplicateEmailException("User not found with id: " + id);
+			throw new DuplicateEmailException("Email already exists: " + id);
 		}
 		userMapper.updateUserFromDto(userRequestDto, existingUser);
 		User updatedUser = userRepository.save(existingUser);
