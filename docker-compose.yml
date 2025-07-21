@@ -1,11 +1,10 @@
 services:
-  # Сервис Spring Boot-приложения
   app:
     build:
       context: .
       target: final
     ports:
-      - "8080:8080"  # Пробрасываем порт приложения
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,7 +21,6 @@ services:
       - SPRING_LIQUIBASE_USER=${SPRING_LIQUIBASE_USER}
       - SPRING_LIQUIBASE_PASSWORD=${SPRING_LIQUIBASE_PASSWORD}
 
-  # Сервис PostgreSQL
   postgres:
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -40,7 +38,6 @@ services:
     ports:
       - "5432:5432"
 
-  # Сервис Redis
   redis:
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
@@ -53,7 +50,6 @@ services:
     volumes:
       - redis_data:/data
 
-# Тома для хранения данных
 volumes:
   postgres_data:
   redis_data:

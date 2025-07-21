@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
 @Sql(scripts = "classpath:/sql/cleanup.sql",
@@ -38,14 +38,16 @@ class RedisCacheTest {
 	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
 	@Container
 	@ServiceConnection
-	private static final GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.2-alpine"))
+	private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
 			.withExposedPorts(6379);
+
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private CardService cardService;
 	@Autowired
 	private CacheManager cacheManager;
+
 	@BeforeEach
 	@Transactional
 	void setUp() {
@@ -58,13 +60,10 @@ class RedisCacheTest {
 		UserRequestDto request = TestUserFactory.createUserRequestDto();
 		UserResponseDto user = userService.createUser(request);
 		Long userId = user.getId();
-
 		UserResponseDto firstCall = userService.getUserById(userId);
 		assertNotNull(firstCall);
-
 		UserResponseDto secondCall = userService.getUserById(userId);
 		assertNotNull(secondCall);
-
 		assertNotNull(cacheManager.getCache("users").get(userId));
 		assertEquals(firstCall, secondCall);
 	}
@@ -73,15 +72,12 @@ class RedisCacheTest {
 	void updateUser_ShouldEvictResult() {
 		UserRequestDto userRequestDto = TestUserFactory.createUserRequestDto("user@example.com");
 		UserRequestDto updatedUserRequestDto = TestUserFactory.createUserRequestDto("updatedUser@example.com");
-
 		UserResponseDto userResponseDto = userService.createUser(userRequestDto);
 		Long userId = userResponseDto.getId();
 		userService.getUserById(userId);
-
 		UserResponseDto cashedUser = (UserResponseDto) cacheManager.getCache("users").get(userId).get();
 		assertNotNull(cashedUser);
 		assertEquals(TestUserFactory.maskEmail(userRequestDto.getEmail()), cashedUser.getMaskedEmail());
-
 		UserResponseDto updatedUserResponseDto = userService.updateUser(userId, updatedUserRequestDto);
 		assertNotNull(updatedUserResponseDto);
 		assertNull(cacheManager.getCache("users").get(userId));
@@ -93,11 +89,9 @@ class RedisCacheTest {
 		UserResponseDto userResponseDto = userService.createUser(userRequestDto);
 		Long userId = userResponseDto.getId();
 		userService.getUserById(userId);
-
 		UserResponseDto cashedUser = (UserResponseDto) cacheManager.getCache("users").get(userId).get();
 		assertNotNull(cashedUser);
 		assertEquals(TestUserFactory.maskEmail(userRequestDto.getEmail()), cashedUser.getMaskedEmail());
-
 		userService.deleteUser(userId);
 		assertNull(cacheManager.getCache("users").get(userId));
 	}
@@ -109,13 +103,10 @@ class RedisCacheTest {
 		Long userId = userResponseDto.getId();
 		CardRequestDto cardRequestDto = TestCardFactory.createCardRequestDto();
 		CardResponseDto cardResponseDto = cardService.createCard(userId, cardRequestDto);
-
 		CardResponseDto firstCall = cardService.getCardByUserIdAndCardId(userId, cardResponseDto.getId());
 		assertNotNull(firstCall);
-
 		CardResponseDto secondCall = cardService.getCardByUserIdAndCardId(userId, cardResponseDto.getId());
 		assertNotNull(secondCall);
-
 		assertNotNull(cacheManager.getCache("cards").get(userId + "_" + cardResponseDto.getId()));
 		assertEquals(firstCall, secondCall);
 	}
@@ -127,12 +118,10 @@ class RedisCacheTest {
 		Long userId = userResponseDto.getId();
 		CardRequestDto cardRequestDto = TestCardFactory.createCardRequestDto();
 		CardResponseDto savedCard1 = cardService.createCard(userId, cardRequestDto);
-
 		CardResponseDto cachedCard = cardService.getCardByUserIdAndCardId(userId, savedCard1.getId());
 		assertNotNull(cachedCard);
 		assertNotNull(cacheManager.getCache("cards").get(userId + "_" + cachedCard.getId()));
 		assertEquals(cachedCard.getMaskedHolder(), savedCard1.getMaskedHolder());
-
 		CardRequestDto secondCardRequestDto = TestCardFactory.createCardRequestDto();
 		secondCardRequestDto.setNumber("1111111111111111");
 		CardResponseDto savedCard2 = cardService.createCard(userId, secondCardRequestDto);
@@ -145,20 +134,15 @@ class RedisCacheTest {
 		UserRequestDto userRequestDto = TestUserFactory.createUserRequestDto();
 		UserResponseDto user = userService.createUser(userRequestDto);
 		Long userId = user.getId();
-
 		CardRequestDto cardRequestDto = TestCardFactory.createCardRequestDto();
 		CardResponseDto createdCard = cardService.createCard(userId, cardRequestDto);
 		Long cardId = createdCard.getId();
-
 		CardResponseDto firstCall = cardService.getCardByUserIdAndCardId(userId, cardId);
 		assertNotNull(firstCall);
 		assertNotNull(cacheManager.getCache("cards").get(userId + "_" + cardId));
-
-		CardRequestDto updateRequest = TestCardFactory.createCardRequestDto("UPDATED HOLDER","5555555555555555");
-
+		CardRequestDto updateRequest = TestCardFactory.createCardRequestDto("UPDATED HOLDER", "5555555555555555");
 		CardResponseDto updatedCard = cardService.updateCard(userId, cardId, updateRequest);
 		assertNotNull(updatedCard);
-
 		assertNull(cacheManager.getCache("cards").get(userId + "_" + cardId));
 	}
 
@@ -167,17 +151,13 @@ class RedisCacheTest {
 		UserRequestDto userRequestDto = TestUserFactory.createUserRequestDto();
 		UserResponseDto user = userService.createUser(userRequestDto);
 		Long userId = user.getId();
-
 		CardRequestDto cardRequestDto = TestCardFactory.createCardRequestDto();
 		CardResponseDto createdCard = cardService.createCard(userId, cardRequestDto);
 		Long cardId = createdCard.getId();
-
 		CardResponseDto firstCall = cardService.getCardByUserIdAndCardId(userId, cardId);
 		assertNotNull(firstCall);
 		assertNotNull(cacheManager.getCache("cards").get(userId + "_" + cardId));
-
 		cardService.deleteCard(userId, cardId);
-
 		assertNull(cacheManager.getCache("cards").get(userId + "_" + cardId));
 	}
 }
