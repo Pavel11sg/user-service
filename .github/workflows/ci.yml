@@ -1,6 +1,7 @@
 name: CI/CD Pipeline
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -60,4 +61,4 @@ jobs:
           push: true
           tags: |
             pavel11sg/innowise-internship-app:latest
-            pavel11sg/innowise-internship-app:${{ github.sha }}  # Тег с хэшем коммита
+            pavel11sg/innowise-internship-app:${{ github.sha }}
