@@ -164,7 +164,7 @@
                 <version>3.5.3</version>
                 <configuration>
                     <argLine>
-                        -javaagent:"${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar"
+                        -javaagent:"${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.17.6/byte-buddy-agent-1.17.6.jar"
                         -XX:+EnableDynamicAgentLoading
                     </argLine>
                 </configuration>
