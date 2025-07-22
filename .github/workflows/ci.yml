@@ -18,6 +18,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Build with Maven
         run: mvn clean package
@@ -42,20 +43,28 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+
+      - name: Compile project
+        run: mvn clean compile
+
+      - name: Verify target directory
+        run: ls -la target/classes/
+
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.organization=innowise-internship
-            -Dsonar.projectKey=Pavel11sg_user-service
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-            -Dsonar.projectName=innowise-internship
-            -Dsonar.java.source=21
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.organization=innowise-internship \
+            -Dsonar.projectKey=Pavel11sg_user-service \
+            -Dsonar.projectName=innowise-internship \
+            -Dsonar.java.source=21 \
+            -Dsonar.sourceEncoding=UTF-8 \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.junit.reportPaths=target/surefire-reports \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
   docker-build:
     needs: sonarqube
