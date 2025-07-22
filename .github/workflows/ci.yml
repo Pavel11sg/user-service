@@ -50,7 +50,10 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.organization=innowise-internship
-            -Dsonar.projectKey=your-Pavel11sg_user-service
+            -Dsonar.projectKey=Pavel11sg_user-service
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
             -Dsonar.projectName=innowise-internship
             -Dsonar.java.source=21
 
