@@ -30,6 +30,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: '21'
+          distribution: 'temurin'
       - run: mvn test
 
   sonarqube:
@@ -40,10 +41,18 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: '21'
+          distribution: 'temurin'
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-action@master
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=innowise-internship
+            -Dsonar.projectKey=your-Pavel11sg_user-service
+            -Dsonar.projectName=innowise-internship
+            -Dsonar.java.source=21
 
   docker-build:
     needs: sonarqube
